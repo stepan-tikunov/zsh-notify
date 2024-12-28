@@ -47,9 +47,9 @@ SCPT
 @test 'iTerm2: is-terminal-active - other tab active' {
   osascript <<SCPT
 tell app id "com.googlecode.iterm2"
-	tell current window
+    tell current window
     create tab with default profile
-	end tell
+    end tell
 end tell
 SCPT
 

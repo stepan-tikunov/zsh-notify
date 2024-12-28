@@ -50,8 +50,8 @@ function is-terminal-active() {
             is-current-tmux-pane-active
             return $?
         fi
-        else
-            return $?
+    else
+        return $?
     fi
 }
 

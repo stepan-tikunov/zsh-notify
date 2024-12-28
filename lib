@@ -35,7 +35,7 @@ function top-level-ppid {
     # We're assuming the root process PID is equal to 1
     while [[ $ppid -ne 1 ]]; do
         pid=$ppid
-        ppid=$(ppid-of $pid)
+        ppid=$(ppid-of $pid) || return
     done
     
     echo $pid
