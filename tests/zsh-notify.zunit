@@ -16,7 +16,7 @@
 
   run zsh-notify success 3  <<<"notification text"
   assert $state equals 0
-  assert "$(get-args)" same_as "-activate com.apple.terminal -title #win (in 3s)"
+  assert "$(get-args)" same_as "-activate com.apple.Terminal -title #win (in 3s)"
   assert "$(get-stdin)" same_as "notification text"
 }
 
@@ -29,7 +29,7 @@
 
   run zsh-notify success 3  <<<"notification text"
   assert $state equals 0
-  assert "$(get-args)" same_as "-activate com.apple.terminal -contentImage custom.gif -title #win (in 3s)"
+  assert "$(get-args)" same_as "-activate com.apple.Terminal -contentImage custom.gif -title #win (in 3s)"
   assert "$(get-stdin)" same_as "notification text"
 }
 
@@ -64,6 +64,46 @@
   run get-args
   assert $state equals 0
   assert "$output" same_as "-activate com.googlecode.iterm2 -contentImage custom.gif -title #win (in 3s)"
+
+  run get-stdin
+  assert $state equals 0
+  assert "$output" same_as "notification text"
+}
+
+@test 'zsh-notify - terminal-notifier in any other macOS terminal' {
+  if ! command -v osascript 1>/dev/null 2>/dev/null || [[ "$TERM_PROGRAM" == "Apple_Terminal" ]] \
+    || [[ "$TERM_PROGRAM" == "iTerm.app" ]] || [[ -n "$ITERM_SESSION_ID" ]];
+  then
+    skip 'must be run in macOS terminal that is not iTerm2 or Apple Terminal (e.g. Alacritty)'
+  fi
+
+  run zsh-notify success 3  <<<"notification text"
+  assert $state equals 0
+
+  run get-args
+  assert $state equals 0
+  assert "$output" matches "-activate [^\\s]* -title \#win \\(in 3s\\)"
+
+  run get-stdin
+  assert $state equals 0
+  assert "$output" same_as "notification text"
+}
+
+@test 'zsh-notify - terminal-notifier in any other macOS terminal with icon' {
+  if ! command -v osascript 1>/dev/null 2>/dev/null || [[ "$TERM_PROGRAM" == "Apple_Terminal" ]] \
+    || [[ "$TERM_PROGRAM" == "iTerm.app" ]] || [[ -n "$ITERM_SESSION_ID" ]];
+  then
+    skip 'must be run in macOS terminal that is not iTerm2 or Apple Terminal (e.g. Alacritty)'
+  fi
+
+  zstyle ':notify:*' success-icon custom.gif
+
+  run zsh-notify success 3  <<<"notification text"
+  assert $state equals 0
+
+  run get-args
+  assert $state equals 0
+  assert "$output" matches "-activate [^\\s]* -contentImage custom.gif -title #win \\(in 3s\\)"
 
   run get-stdin
   assert $state equals 0

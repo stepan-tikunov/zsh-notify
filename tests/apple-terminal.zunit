@@ -14,7 +14,7 @@
   fi
 
   osascript <<SCPT
-tell app id "com.apple.terminal"
+tell app id "com.apple.Terminal"
   activate
 end 
 SCPT
@@ -22,7 +22,7 @@ SCPT
 
 @test 'Apple Terminal: is-terminal-active - yes' {
   osascript <<SCPT
-tell app id "com.apple.terminal"
+tell app id "com.apple.Terminal"
   activate
 end 
 SCPT
@@ -34,7 +34,7 @@ SCPT
 @test 'Apple Terminal: is-terminal-active - app in background' {
   osascript <<SCPT
 tell app "System Events"
-    tell item 1 of (application processes whose bundle identifier is "com.apple.terminal")
+    tell item 1 of (application processes whose bundle identifier is "com.apple.Terminal")
       set visible to false
     end tell
 end tell
@@ -47,7 +47,7 @@ SCPT
 @test 'Apple Terminal: is-terminal-active - other tab active' {
   osascript <<SCPT
 tell app "System Events"
-    tell item 1 of (application processes whose bundle identifier is "com.apple.terminal")
+    tell item 1 of (application processes whose bundle identifier is "com.apple.Terminal")
       set frontmost to true
     end tell
 

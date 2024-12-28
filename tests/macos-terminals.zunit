@@ -1,0 +1,51 @@
+#!/usr/bin/env zunit
+
+@setup {
+  load ../notify.plugin.zsh
+
+  if ! command -v osascript 1>/dev/null 2>/dev/null || [[ "$TERM_PROGRAM" == "Apple_Terminal" ]] \
+    || [[ "$TERM_PROGRAM" == "iTerm.app" ]] || [[ -n "$ITERM_SESSION_ID" ]];
+  then
+    skip 'this test must be run in macOS terminal that is not iTerm2 or Apple Terminal (e.g. Alacritty)'
+  fi
+
+  app_id=$(osascript -e 'tell application "System Events" to return bundle identifier of first process where it is frontmost')
+}
+
+@teardown {
+  if ! command -v osascript 1>/dev/null 2>/dev/null || [[ "$TERM_PROGRAM" == "Apple_Terminal" ]] \
+    || [[ "$TERM_PROGRAM" == "iTerm.app" ]] || [[ -n "$ITERM_SESSION_ID" ]];
+  then
+    return
+  fi
+
+  osascript <<SCPT
+tell app id "$app_id"
+  activate
+end 
+SCPT
+}
+
+@test 'Any other macOS terminal: is-terminal-active - yes' {
+  osascript <<SCPT
+tell app id "$app_id"
+  activate
+end 
+SCPT
+
+  run is-terminal-active
+  assert $state equals 0
+}
+
+@test 'Any other macOS terminal: is-terminal-active - app in background' {
+  osascript <<SCPT
+tell app "System Events"
+    tell item 1 of (application processes whose bundle identifier is "$app_id")
+      set visible to false
+    end tell
+end tell
+SCPT
+
+  run is-terminal-active
+  assert $state equals 1
+}

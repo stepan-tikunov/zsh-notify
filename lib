@@ -16,6 +16,31 @@ function current-tty {
     fi
 }
 
+# Find the top level parent PID of current shell (not including root process), also accounting for TMUX
+function top-level-ppid {
+    # Find parent PID of process by its PID
+    function ppid-of {
+        pid=$1
+        ps -p $pid -o ppid=
+    }
+
+    pid=$$
+
+    if is-inside-tmux; then
+        pid=$(tmux display-message -p '#{client_pid}')
+    fi
+
+    ppid=$(ppid-of $pid)
+
+    # We're assuming the root process PID is equal to 1
+    while [[ $ppid -ne 1 ]]; do
+        pid=$ppid
+        ppid=$(ppid-of $pid)
+    done
+    
+    echo $pid
+}
+
 # Exit with 0 if given TMUX pane is the active one.
 function is-current-tmux-pane-active {
     is-inside-tmux || return 1
@@ -40,11 +65,11 @@ function notification-title {
     zstyle -s ':notify:' "$type"-title title 
 
     while [[ $# -gt 0 ]]; do
-      k="$1"
-      v="$2"
-      title=$(echo $title | sed "s/#{$k}/$v/")
-      shift
-      shift
+        k="$1"
+        v="$2"
+        title=$(echo $title | sed "s/#{$k}/$v/")
+        shift
+        shift
     done
 
     echo $title
